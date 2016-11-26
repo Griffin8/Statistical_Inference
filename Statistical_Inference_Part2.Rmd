@@ -1,0 +1,97 @@
+---
+title: "Statistical Inference Course Project Part 2"
+Author: Danielle
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,fig.width=12, fig.height=8, fig.align='center', fig.path='Figs/')
+library(ggplot2)
+```
+Overview: In this project, we're going to analyze the ToothGrowth data in the R datasets package and study the ToothGrowth data set and compare the tooth growth by supplement type and dose.
+
+
+# Load the ToothGrowth data and perform some basic exploratory data analyses
+```{r}
+head(ToothGrowth)
+str(ToothGrowth)
+```
+
+# Provide a basic summary of the data
+```{r}
+summary(ToothGrowth)
+```
+Boxplot comparison by delivery methods and dose level
+```{r}
+ggplot(aes(x=supp, y=len), data=ToothGrowth)+geom_boxplot(aes(fill = supp))+facet_wrap(~dose)
+```
+The above graph indicates that the dosage has significant impact on teeth growth. At dose level 0.5 and 1, OJ seems more effective than VC. But it is hard to tell at the dose level 2. 
+
+# Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose
+
+
+
+**_Hypothesis: Different Supplements have no effect on tooth growth_** 
+```{r}
+t.test(len~supp, data = ToothGrowth)
+```
+The confidence interval includes 0 and the p-value is above the 0.05 threshold. This indicates that we fail to reject the null hypothesis.
+
+
+**_Hypothesis: Supplement doesage have no effect on tooth growth_** 
+We will run differet groups of dose for this Hypothesis analysis: 0.5 & 1, 1 & 2, 0.5 &2
+```{r}
+dose1 <- subset(ToothGrowth, dose %in% c(0.5, 1))
+t.test(len ~ dose, data = dose1)
+```
+```{r}
+dose2 <- subset(ToothGrowth, dose %in% c(1, 2))
+t.test(len ~ dose, data = dose2)
+```
+```{r}
+dose3 <- subset(ToothGrowth, dose %in% c(0.5, 2))
+t.test(len ~ dose, data = dose3)
+```
+
+The confidence intervals for all the combination of dose pairs do not includes 0 and the p-value is below the 0.05 threshold. This indicates that we can reject this null hypothesis.
+
+
+**_Hypothesis: OJ has same effect as VC for tooth growth at 1 dose level_**
+```{r}
+ToothGrowth.5 <- subset(ToothGrowth, dose == 0.5)
+t.test(len ~ supp, data = ToothGrowth.5, paired = FALSE)
+```
+The confidence interval does not include 0 and the p-value is below the 0.05 threshold. This indicates that we can reject this null hypothesis.
+
+
+**_Hypothesis: OJ has same effect as VC for tooth growth at 1 dose level_**
+```{r}
+ToothGrowth.1 <- subset(ToothGrowth, dose == 1)
+t.test(len ~ supp, data = ToothGrowth.1, paired = FALSE)
+```
+The confidence interval does not include 0 and the p-value is below the 0.05 threshold. This indicates that we can reject this null hypothesis.
+
+
+**_Hypothesis: OJ is more effective than VC for tooth growth at 2 dose level_**
+```{r}
+ToothGrowth.2 <- subset(ToothGrowth, dose == 2)
+t.test(len ~ supp, data = ToothGrowth.2, paired = FALSE)
+```
+The confidence interval includes 0 and the p-value is above the 0.05 threshold. This indicates that we can not reject this null hypothesis.
+
+
+# Conclusions and Assumptions
+
+Hypothesis of different supplements have no effect on tooth growth -- fail to reject
+Hypothesis of supplement doesage have no effect on tooth growth  -- reject
+Hypothesis of OJ has same effect as VC for tooth growth at 0.5 dose level -- reject
+Hypothesis of OJ has same effect as VC for tooth growth at 1 dose level -- reject
+Hypothesis of OJ has same effect as VC for tooth growth at 2 dose level -- fail to reject
+
+The above tests indicate that the doseage of suplements has significant impact on tooth growth. It is hard to tell if the type of supplements makes different on tooth growth in general. But for dose level 0.5 and 1, OJ is better than VC.
+
+
+Assumptions:  
+1. assuming unequal variances between the two groups
+2. conf.level = 0.95
+3. alternative = two.sided

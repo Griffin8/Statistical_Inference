@@ -1,0 +1,77 @@
+---
+title: "Statistical Inference Course Project Part 1"
+Author: Danielle
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,fig.width=12, fig.height=8, fig.align='center', fig.path='Figs/')
+```
+Overview: 
+In this Report we will investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution will be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. Set lambda = 0.2 for all of the simulations. We will investigate the distribution of averages of 40 exponentials. We will need to do a thousand simulations.
+
+## Simulation
+n=40
+lambda = 0.2
+theoretical mean = 5
+standard deviation = 5
+
+
+1. Create a exponential distribution with 40 exponentials.
+```{r}
+set.seed(4000)
+n <- 40
+lam <- 0.2
+sample <- rexp(n, lam)
+
+```
+
+2. Run a thousand simulations
+```{r}
+simulation = NULL
+for (i in 1 : 1000) simulation = c(simulation, mean(rexp(n, lam)))
+```
+
+3. Histogram of the simulations
+```{r}
+hist(simulation,prob=TRUE, xlab = "Mean of 40 Exponentials", ylab = "Density")
+```
+
+## simulation mean vs theoretical mean
+```{r}
+sim_mean <- mean(simulation)
+
+```
+The simulation mean is `r sim_mean` is very close to the theoretical mean of 5.
+
+## simulation variance vs theoretical variance
+```{r}
+sim_var <- var(simulation)
+theo_var <- (1/lam)^2 /n
+```
+The simulation variance is `r sim_var` is very close to the theoretical variance of `r theo_var`.
+
+## Distribution of simulation vs theoretical distribution
+```{r}
+hist(simulation,prob=TRUE, xlab = "Mean of 40 Exponentials", ylab = "Density"
+     , main = "Comparison of simulation distribution vs theoretical distribution")
+curve(dnorm(x, mean=mean(simulation), sd=sd(simulation)), add=TRUE, col="Blue", lwd = 2)
+curve(dnorm(x, mean=5, sd=sqrt(theo_var)), add=TRUE, col="Red", lwd = 2)
+legend('topright', c("simulation", "theoretical"), lty=c(1,2), col=c("black", "red"))
+```
+As shown in the graph above, the simulation will be approximated with the normal distribution
+
+## Confidence intervals
+
+The simulation confidence intervals is:
+```{r}
+sim_mean + c(-1,1) * qt(0.975, 39) * sqrt(sim_var) * sqrt(1/40)
+```
+The theoretical confidence intervals is:
+```{r}
+5 + c(-1,1) * qt(0.975, 39) * sqrt(theo_var) * sqrt(1/40)
+```
+
+## Conclusion
+This exercise shown that, based on the central limit theorem, when the sample size is big enough, the sample distribution will be approximated with the normal distribution.
+
